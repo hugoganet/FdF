@@ -9,7 +9,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 # Directory containing Fdf source files
 SRC_DIR = src
 # Source files for Fdf
-SRC_FILES = fdf.c main.c
+SRC_FILES = draw.c parse_map.c main.c
 # Full path to the source files
 SRCS := $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
