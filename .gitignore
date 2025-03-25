@@ -1,0 +1,11 @@
+# Ignore everything in the obj/ directory
+obj/
+
+# Ignore .gitmodules file
+.gitmodules
+
+# Other common ignores
+*.log
+*.tmp
+*.swp
+.DS_Store
