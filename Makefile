@@ -28,9 +28,17 @@ INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -Iminilibx_macos
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-
 # Linker flags
 LDFLAGS = -Lminilibx_macos -lmlx -framework AppKit -framework Metal -framework OpenGL
+
+# ASAN flags for debugging
+ASAN_FLAGS = -fsanitize=address -g3 -fno-omit-frame-pointer
+
+# Use ASan if ASAN is defined (run `make ASAN=1`)
+ifeq ($(ASAN), 1)
+    CFLAGS += -fsanitize=address -g3 -fno-omit-frame-pointer
+    LDFLAGS += -fsanitize=address -shared-libasan
+endif
 
 # Default rule: Build the executable
 all: $(NAME)

@@ -47,8 +47,8 @@ typedef struct s_fdf
 	void *win_ptr; // Window instance
 	t_img img;	   // Image buffer for rendering
 	t_point **map; // 2D array of points
-	int rows;
-	int columns;
+	int rows; // Number of rows
+	int columns; // Number of columns
 } t_fdf;
 
 // Parsing functions
