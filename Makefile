@@ -5,6 +5,7 @@ NAME = fdf
 LIBFT_DIR = libft
 # Name of the libft static library
 LIBFT = $(LIBFT_DIR)/libft.a
+MLX_DIR = minilibx-linux
 
 # Directory containing Fdf source files
 SRC_DIR = src
@@ -22,23 +23,13 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
 # - -I flag tells the compiler where to look for header files
 # - `includes` contains Fdf headers
 # - `$(LIBFT_DIR)` is for libft headers
-INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -Iminilibx_macos
-
+INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -Iminilibx-linux
 
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 # Linker flags
-LDFLAGS = -Lminilibx_macos -lmlx -framework AppKit -framework Metal -framework OpenGL
-
-# ASAN flags for debugging
-ASAN_FLAGS = -fsanitize=address -g3 -fno-omit-frame-pointer
-
-# Use ASan if ASAN is defined (run `make ASAN=1`)
-ifeq ($(ASAN), 1)
-    CFLAGS += -fsanitize=address -g3 -fno-omit-frame-pointer
-    LDFLAGS += -fsanitize=address -shared-libasan
-endif
+LDFLAGS = -L$(MLX_DIR) -lmlx -lXext -lX11 -lm -lbsd
 
 # Default rule: Build the executable
 all: $(NAME)
@@ -63,7 +54,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(LIBFT)
 # -L flag tells the linker where to look for the libft library
 # -lft flag tells the linker to link against the libft library
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS) -L$(LIBFT_DIR) -lft
+	$(CC) $(OBJS) $(LDFLAGS) -L$(LIBFT_DIR) -lft -o $(NAME)
 
 # Rule to clean object files
 clean:

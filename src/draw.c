@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   draw.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hugoganet <hugoganet@student.42.fr>        +#+  +:+       +#+        */
+/*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 19:11:55 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/03/10 12:32:23 by hugoganet        ###   ########.fr       */
+/*   Updated: 2025/03/28 12:38:02 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 #include <mlx.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+static t_point scale_point(t_point p)
+{
+	p.x *= SCALE;
+	p.y *= SCALE - (p.z * 10);
+	return (p);
+}
 
 /**
  * @brief Places a pixel at a specific (x, y) coordinate inside the image buffer.
@@ -125,11 +132,11 @@ void draw_map(t_fdf *fdf)
 		{
 			// Draw a line to the right (if not at the last column)
 			if (x < fdf->columns - 1)
-				draw_line(fdf, fdf->map[y][x], fdf->map[y][x + 1], 0xFFFFFF);
+				draw_line(fdf, scale_point(fdf->map[y][x]), scale_point(fdf->map[y][x + 1]), 0xFFFFFF);
 
 			// Draw a line downward (if not at the last row)
 			if (y < fdf->rows - 1)
-				draw_line(fdf, fdf->map[y][x], fdf->map[y + 1][x], 0xFFFFFF);
+				draw_line(fdf, scale_point(fdf->map[y][x]), scale_point(fdf->map[y + 1][x]), 0xFFFFFF);
 			// Move to the next column
 			x++;
 		}

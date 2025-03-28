@@ -62,4 +62,6 @@ void draw_line(t_fdf *fdf, t_point p1, t_point p2, int color);
 void draw_map(t_fdf *fdf);
 void render_image(t_fdf *fdf);
 
+#define SCALE 20
+
 #endif
