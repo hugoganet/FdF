@@ -1,0 +1,5 @@
+# Ignore everything in the obj/ directory
+obj/
+
+# Ignore binary file
+fdf
