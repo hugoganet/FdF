@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_map.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hugoganet <hugoganet@student.42.fr>        +#+  +:+       +#+        */
+/*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/03/03 17:18:37 by hugoganet        ###   ########.fr       */
+/*   Updated: 2025/04/11 15:51:20 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,12 @@
 #include "get_next_line.h"
 
 /**
- * @brief Counts the number of columns (numbers) in a row.
+ * @brief Counts how many numbers (columns) are in a single line of the map.
  *
- * @param line The input line from the map.
- * @return int The count of numbers found.
+ * A column is counted when we go from a space into a non-space character.
+ *
+ * @param line A single row of the map, as a string.
+ * @return int The number of numeric values (columns) found in the line.
  */
 int count_columns(char *line)
 {
@@ -41,50 +43,75 @@ int count_columns(char *line)
 }
 
 /**
- * @brief Parses a single line into an array of points.
+ * @brief Parses a single line from the .fdf file into an array of t_point,
+ *        and updates min_z and max_z values inside the fdf struct.
  *
- * @param line The line containing altitude values.
- * @param y The current row index.
- * @param columns The number of columns expected.
- * @return t_point* The array of points for the row.
+ * @param fdf Pointer to the FDF context (used to update min_z / max_z).
+ * @param line A single line from the .fdf map file (ex: "0 0 3 2").
+ * @param y The current row index in the map.
+ * @param columns The expected number of columns.
+ * @return t_point* An array of points for this row, or NULL on failure.
  */
-t_point *parse_line(char *line, int y, int columns)
+t_point *parse_line(t_fdf *fdf, char *line, int y, int columns)
 {
-	t_point *points; // Initialize the array of points for the row
-	char 	**values; // Initialize the array of values (strings)
-	int 	i;
+	t_point *points;
+	char **values;
+	int i;
+	int z;
 
-	points = malloc(sizeof(t_point) * columns); // Allocate memory for the array of points
+	// Allocate row of points
+	points = malloc(sizeof(t_point) * columns);
 	if (!points)
 		return (NULL);
-	values = ft_split(line, ' '); // Split the line into an array of strings (values)
-	if (!values) // Check if the values were split correctly (no memory error)		
+
+	// Split the input line into strings
+	values = ft_split(line, ' ');
+	if (!values)
 	{
 		free(points);
 		return (NULL);
 	}
+
+	// Parse each value and update min/max z
 	i = 0;
-	while (i < columns) // Iterate over the values and store them in the array of points
+	while (i < columns && values[i])
 	{
-		// ? Can I not use the -> operator to access the struct members ?
-		points[i].x = i; // Set the x-coordinate to the index(column) as the map is 2D
-		points[i].y = y; // Set the y-coordinate to the row index
-		points[i].z = ft_atoi(values[i]); // Set the z-coordinate to the altitude value
-		// ! Each row as 19 points, each point has 3 values (x, y and z)
-		//printf("%i %i %i\n", points[i].x, points[i].y, points[i].z);
-		free(values[i]); // Free the value of the column after storing it
+		points[i].x = i;
+		points[i].y = y;
+		points[i].z = ft_atoi(values[i]);
+		z = points[i].z;
+
+		if (y == 0 && i == 0)
+		{
+			fdf->min_z = z;
+			fdf->max_z = z;
+		}
+		else
+		{
+			if (z < fdf->min_z)
+				fdf->min_z = z;
+			if (z > fdf->max_z)
+				fdf->max_z = z;
+		}
+		free(values[i]);
 		i++;
 	}
-	free(values); // Free the array of values after storing all the points
-	return (points); // Return the array of points
+
+	// Free any remaining values past expected column count
+	while (values[i])
+		free(values[i++]);
+	free(values);
+	return (points);
 }
 
 /**
- * @brief Gets the number of rows and sets the column count from the file by reading it line by line.
+ * @brief Opens the file and counts how many rows and columns it has.
  *
- * @param filename The name of the map file.
- * @param columns Pointer to store the number of columns.
- * @return int The number of rows, or -1 on error.
+ * It only counts the first line's columns and assumes all others are the same.
+ *
+ * @param filename The file path to open.
+ * @param columns Pointer to write the column count into.
+ * @return int Number of rows in the map, or -1 on error.
  */
 static int get_rows_and_columns(char *filename, int *columns)
 {
@@ -92,48 +119,46 @@ static int get_rows_and_columns(char *filename, int *columns)
 	char *line;
 	int rows;
 
-	rows = 0;
-	fd = open(filename, O_RDONLY); // Open the file with its filename
+	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (-1);
-	while ((line = get_next_line(fd))) // Read the file line by line
+	rows = 0;
+	while ((line = get_next_line(fd)))
 	{
-		if (rows == 0) // Get the number of columns from the first line
-		{
-			*columns = count_columns(line); // ? Do I need to check if the number of columns is the same for each row ?
-		}
-		//ft_printf("%s\n", line);
-		rows++; // Increment the number of rows each time a line is read
-		free(line); //Free the line before reading the next one
+		if (rows == 0)
+			*columns = count_columns(line);
+		free(line);
+		rows++;
 	}
 	close(fd);
 	return (rows);
 }
 
 /**
- * @brief Reads the map file and fills the 2D array of points.
+ * @brief Reads each line of the map file and fills the map 2D array.
  *
- * @param fd The file descriptor.
- * @param rows The number of rows.
- * @param columns The number of columns.
- * @return t_point** The 2D array representing the map.
+ * Calls parse_line() for each line and builds a full array of t_point* lines.
+ *
+ * @param fd Open file descriptor for the map file.
+ * @param fdf Pointer to the FDF structure.
+ * @param rows Total number of rows.
+ * @param columns Total number of columns.
+ * @return t_point** 2D array of points, or NULL on error.
  */
-static t_point **read_map_file(int fd, int rows, int columns)
+static t_point **read_map_file(int fd, t_fdf *fdf, int rows, int columns)
 {
-	t_point **map; // Initialize the 2D array of points
-	int 	i; // Incremental var for the rows
-	char 	*line; // Initialize the line buffer
+	t_point **map;
+	char *line;
+	int i;
 
-	// ? Why do I not multiply by the number of columns ? It should be size of(t_point *) * rows * columns ?
-	// I malloc a pointer of t_point for each row, so it is actually an array of array(t_point). I will allocate for each row the number of columns in parse_line.
-	map = malloc(sizeof(t_point *) * rows); // Allocate memory for the 2D array
+	map = malloc(sizeof(t_point *) * rows);
 	if (!map)
 		return (NULL);
 	i = 0;
 	while ((line = get_next_line(fd)))
 	{
-		map[i] = parse_line(line, i, columns); // Parse the line into an array of points
-		free(line); // Free the line buffer after parsing it
+		map[i] = parse_line(fdf, line, i, columns);
+		free(line);
 		if (!map[i])
 			return (NULL);
 		i++;
@@ -142,25 +167,26 @@ static t_point **read_map_file(int fd, int rows, int columns)
 }
 
 /**
- * @brief Parses the entire map file.
+ * @brief Parses a complete map file and builds the 2D point grid.
  *
- * @param filename The name of the map file.
- * @param rows Pointer to store the number of rows.
- * @param columns Pointer to store the number of columns.
- * @return t_point** The 2D array representing the map.
+ * This sets fdf->rows, fdf->columns, fdf->min_z and fdf->max_z.
+ *
+ * @param filename The map file path (e.g., "42.fdf").
+ * @param fdf Pointer to the FDF structure.
+ * @return t_point** The 2D array of points for the map.
  */
-t_point **parse_map(char *filename, int *rows, int *columns)
+t_point **parse_map(char *filename, t_fdf *fdf)
 {
-	t_point **map; // 2D array of points 
-	int fd; // File descriptor
+	t_point **map;
+	int fd;
 
-	*rows = get_rows_and_columns(filename, columns);
-	if (*rows <= 0) // Check if the number of rows is valid
+	fdf->rows = get_rows_and_columns(filename, &fdf->columns);
+	if (fdf->rows <= 0)
 		return (NULL);
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (NULL);
-	map = read_map_file(fd, *rows, *columns);
+	map = read_map_file(fd, fdf, fdf->rows, fdf->columns);
 	close(fd);
 	return (map);
 }

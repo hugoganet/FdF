@@ -10,7 +10,11 @@ MLX_DIR = minilibx-linux
 # Directory containing Fdf source files
 SRC_DIR = src
 # Source files for Fdf
-SRC_FILES = draw.c parse_map.c main.c
+SRC_FILES = draw.c \
+			parse_map.c \
+			event.c \
+			color.c \
+			main.c
 # Full path to the source files
 SRCS := $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
