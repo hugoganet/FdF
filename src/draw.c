@@ -6,94 +6,137 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 19:11:55 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/03/28 12:38:02 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/11 15:21:54 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 #include <mlx.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <math.h>
 
-static t_point scale_point(t_point p)
+
+/**
+ * @brief Applies scaling and translation to a 3D point before drawing.
+ *
+ * This includes zooming (based on map size), centering, and projecting to 2D.
+ *
+ * @param p The original 3D point.
+ * @param fdf Pointer to the FDF structure for access to scale and offset.
+ * @return The final screen-space 2D point ready for drawing.
+ */
+t_point project_point(t_point p, t_fdf *fdf)
 {
-	p.x *= SCALE;
-	p.y *= SCALE - (p.z * 10);
-	return (p);
+	t_point result;
+
+	// Center the map in logical space (pre-projection)
+	float x = (p.x - fdf->columns / 2.0f) * fdf->scale;
+	float y = (p.y - fdf->rows / 2.0f) * fdf->scale;
+	float z = p.z * fdf->scale * fdf->z_scale;
+
+	// Apply isometric projection
+	result.x = (x - y) * cos(0.523599); // 30 degrees
+	result.y = (x + y) * sin(0.523599) - z;
+
+	// Move to center of screen
+	result.x += fdf->x_offset;
+	result.y += fdf->y_offset;
+
+	return result;
 }
 
 /**
- * @brief Places a pixel at a specific (x, y) coordinate inside the image buffer.
+ * @brief Initializes scale and offset to fit the map nicely inside the window.
  *
- * Instead of directly drawing on the screen, we modify the image stored in memory.
- * This allows smoother rendering by updating the whole image at once.
+ * This computes an adaptive zoom level depending on the map size,
+ * and sets offsets to center it.
+ *
+ * @param fdf Pointer to the FDF structure containing map size info.
+ */
+void init_transform(t_fdf *fdf)
+{
+	float x_scale;
+	float y_scale;
+
+	// Scale so map fits inside half of window
+	x_scale = (float)(WIN_WIDTH / 1.5f) / fdf->columns;
+	y_scale = (float)(WIN_HEIGHT / 1.5f) / fdf->rows;
+	fdf->scale = fmin(x_scale, y_scale);
+
+	// Center map around its middle point
+	fdf->x_offset = WIN_WIDTH / 2;
+	fdf->y_offset = WIN_HEIGHT / 2;
+}
+
+/**
+ * @brief Initializes the MiniLibX image structure used for drawing.
+ *
+ * Creates an off-screen image buffer and links it to the fdf->img structure.
+ * This image will be drawn to the window after being filled with pixels.
+ *
+ * @param fdf Pointer to the FDF structure.
+ */
+void init_image(t_fdf *fdf)
+{
+	fdf->img.img_ptr = mlx_new_image(fdf->mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+	if (!fdf->img.img_ptr)
+	{
+		ft_printf("Error: Failed to create an image.\n");
+		exit(1);
+	}
+	fdf->img.addr = mlx_get_data_addr(fdf->img.img_ptr,
+									  &fdf->img.bits_per_pixel, &fdf->img.line_length, &fdf->img.endian);
+	fdf->img.width = WIN_WIDTH;
+	fdf->img.height = WIN_HEIGHT;
+}
+
+/**
+ * @brief Draws a pixel in the image buffer if it's within screen bounds.
+ *
+ * This writes directly to the image's memory, not to the screen itself.
  *
  * @param img Pointer to the image structure.
- * @param x X-coordinate of the pixel.
- * @param y Y-coordinate of the pixel.
- * @param color Color of the pixel in hexadecimal format (e.g., 0xFFFFFF for white).
+ * @param x Pixel X-coordinate.
+ * @param y Pixel Y-coordinate.
+ * @param color Pixel color in hex format (e.g., 0xFFFFFF for white).
  */
 void put_pixel_to_image(t_img *img, int x, int y, int color)
 {
 	char *dst;
 
-	// Check if image is properly initialized
 	if (!img || !img->addr)
-	{
-		ft_printf("Error: Image is not initialized.\n");
 		return;
-	}
-
-	// Check if pixel is inside valid boundaries
 	if (x < 0 || x >= img->width || y < 0 || y >= img->height)
-	{
-		ft_printf("Warning: Trying to draw out of bounds (x=%d, y=%d)\n", x, y);
 		return;
-	}
-
-	// Compute the pixel's memory address
 	dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
-
-	// Cast the pointer 'dst' to a pointer of type 'unsigned int'
-	// Dereference the casted pointer to access the memory location it points to
-	// Assign the value of 'color' to the memory location pointed to by the casted pointer
 	*(unsigned int *)dst = color;
 }
 
 /**
- * @brief Draws a line between two points using Bresenham's line algorithm.
+ * @brief Draws a line between two points using Bresenham's algorithm.
  *
- * Bresenham's algorithm efficiently calculates which pixels should be filled
- * to create a visually continuous line. Instead of using floating-point math,
- * it works with integer increments and error correction.
+ * Calculates the points on a line by incrementing step-by-step
+ * using only integers for performance.
  *
- * @param fdf Pointer to the FDF structure containing the MiniLibX context.
- * @param p1 Starting point of the line.
- * @param p2 Ending point of the line.
- * @param color Color of the line in hexadecimal format.
+ * @param fdf Pointer to the FDF structure.
+ * @param p1 Starting screen-space point.
+ * @param p2 Ending screen-space point.
+ * @param color Line color.
  */
 void draw_line(t_fdf *fdf, t_point p1, t_point p2, int color)
 {
-	int delta[2]; // delta[0] = dx (horizontal difference), delta[1] = dy (vertical difference)
-	int step[2];  // step[0] = x direction (+1 or -1), step[1] = y direction (+1 or -1)
-	int err;	  // Error accumulator to determine when to step in the y direction
+	int delta[2];
+	int step[2];
+	int err;
 	int e2;
 
-	// Calculate absolute differences in x and y
 	delta[0] = abs(p2.x - p1.x);
 	delta[1] = abs(p2.y - p1.y);
-
-	// Determine the direction of movement (left/right, up/down)
 	step[0] = (p1.x < p2.x) ? 1 : -1;
 	step[1] = (p1.y < p2.y) ? 1 : -1;
-
-	// Initialize error value
 	err = delta[0] - delta[1];
-
-	// Draw the line point by point
 	while (p1.x != p2.x || p1.y != p2.y)
 	{
-		// Place a pixel at the current point
 		put_pixel_to_image(&fdf->img, p1.x, p1.y, color);
 		e2 = err * 2;
 		if (e2 > -delta[1])
@@ -110,71 +153,72 @@ void draw_line(t_fdf *fdf, t_point p1, t_point p2, int color)
 }
 
 /**
- * @brief Draws the entire wireframe map by connecting adjacent points.
+ * @brief Draws the entire wireframe by connecting neighboring points.
  *
- * This function loops through all points in the map and connects them
- * horizontally and vertically with lines. This forms the "wireframe" model.
+ * This loops through all points in the map and connects them to the
+ * point to their right and the point below them.
  *
- * @param fdf Pointer to the FDF structure containing the map and rendering context.
+ * @param fdf Pointer to the FDF structure containing the map and config.
  */
 void draw_map(t_fdf *fdf)
 {
 	int x;
 	int y;
+	int color;
+	t_point p1;
+	t_point p2;
 
-	// Iterate over each row in the map
 	y = 0;
 	while (y < fdf->rows)
 	{
-		// Iterate over each column in the row
 		x = 0;
 		while (x < fdf->columns)
 		{
-			// Draw a line to the right (if not at the last column)
-			if (x < fdf->columns - 1)
-				draw_line(fdf, scale_point(fdf->map[y][x]), scale_point(fdf->map[y][x + 1]), 0xFFFFFF);
+			p1 = fdf->map[y][x];
 
-			// Draw a line downward (if not at the last row)
+			if (x < fdf->columns - 1)
+			{
+				p2 = fdf->map[y][x + 1];
+				color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
+				draw_line(fdf, project_point(p1, fdf), project_point(p2, fdf), color);
+			}
+
 			if (y < fdf->rows - 1)
-				draw_line(fdf, scale_point(fdf->map[y][x]), scale_point(fdf->map[y + 1][x]), 0xFFFFFF);
-			// Move to the next column
+			{
+				p2 = fdf->map[y + 1][x];
+				color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
+				draw_line(fdf, project_point(p1, fdf), project_point(p2, fdf), color);
+			}
+
 			x++;
 		}
-		// Move to the next row
 		y++;
 	}
 }
 
 /**
- * @brief Renders the image buffer to the MiniLibX window.
+ * @brief Pushes the image buffer to the MiniLibX window.
  *
- * The drawing functions only modify an off-screen image buffer.
- * This function transfers the image to the window for display.
+ * Must be called after all drawing is done.
  *
- * @param fdf Pointer to the FDF structure containing the rendering context.
+ * @param fdf Pointer to the FDF structure.
  */
 void render_image(t_fdf *fdf)
 {
-	// Clear the window before updating the new image
 	mlx_clear_window(fdf->mlx_ptr, fdf->win_ptr);
-
-	// Put the updated image buffer onto the screen
-	mlx_put_image_to_window(fdf->mlx_ptr, fdf->win_ptr, fdf->img.img_ptr, 0, 0);
+	mlx_put_image_to_window(fdf->mlx_ptr, fdf->win_ptr,
+							fdf->img.img_ptr, 0, 0);
 }
 
 /**
- * @brief Draws the map and updates the window with the new image.
+ * @brief Main rendering function to draw and display the map.
  *
- * This function acts as the "main render function." It ensures the map
- * is drawn to the image buffer, then displayed on the window.
+ * Combines draw_map() and render_image() to update the screen.
  *
- * @param fdf Pointer to the FDF structure containing the rendering context.
+ * @param fdf Pointer to the FDF structure.
  */
 void update_window(t_fdf *fdf)
 {
-	// Draw the wireframe map into the image buffer
 	draw_map(fdf);
-
-	// Push the updated image to the window
 	render_image(fdf);
 }

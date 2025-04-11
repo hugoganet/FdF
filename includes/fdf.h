@@ -43,17 +43,24 @@ typedef struct s_img
  */
 typedef struct s_fdf
 {
-	void *mlx_ptr; // MiniLibX instance
-	void *win_ptr; // Window instance
-	t_img img;	   // Image buffer for rendering
-	t_point **map; // 2D array of points
-	int rows; // Number of rows
-	int columns; // Number of columns
+	void *mlx_ptr;
+	void *win_ptr;
+	t_img img;
+	t_point **map;
+	int rows;
+	int columns;
+	int min_z;
+	int max_z;
+	float z_scale;
+
+	float scale;  // Dynamic zoom factor
+	int x_offset; // Center offset on X
+	int y_offset; // Center offset on Y
 } t_fdf;
 
 // Parsing functions
-t_point **parse_map(char *filename, int *rows, int *columns);
-t_point *parse_line(char *line, int y, int columns);
+t_point **parse_map(char *filename, t_fdf *fdf);
+t_point *parse_line(t_fdf *fdf, char *line, int y, int columns);
 int count_columns(char *line);
 
 // Rendering functions
@@ -61,7 +68,19 @@ void put_pixel_to_image(t_img *img, int x, int y, int color);
 void draw_line(t_fdf *fdf, t_point p1, t_point p2, int color);
 void draw_map(t_fdf *fdf);
 void render_image(t_fdf *fdf);
+void update_window(t_fdf *fdf);
+void init_transform(t_fdf *fdf);
+void init_image(t_fdf *fdf);
+t_point project_point(t_point p, t_fdf *fdf);
+int get_color(int z, int min_z, int max_z);
+int interpolate_color(int start, int end, float percent);
 
-#define SCALE 20
+	// Event functions
+	int handle_key(int keycode, void *param);
+int handle_close(void *param);
+
+
+#define WIN_WIDTH 1600
+#define WIN_HEIGHT 1200
 
 #endif
