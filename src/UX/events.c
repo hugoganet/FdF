@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   event.c                                            :+:      :+:    :+:   */
+/*   events.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:42:16 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/11 14:39:37 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/14 16:14:56 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int handle_key(int keycode, void *param)
 	t_fdf *fdf;
 
 	fdf = (t_fdf *)param;
-	if (keycode == 65307) // ESC key on Linux (use 53 for Mac)
+	if (keycode == 65307)
 	{
 		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
 		exit(0);

@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/11 15:51:20 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/14 12:02:26 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,24 @@
  * @param line A single row of the map, as a string.
  * @return int The number of numeric values (columns) found in the line.
  */
-int count_columns(char *line)
+int	count_columns(char *line)
 {
-	int count;
-	int i;
+	int	count;
+	int	i;
 
 	count = 0;
 	i = 0;
+	// Loop through the line until we reach the end
 	while (line[i])
 	{
+		// Skip spaces
 		while (line[i] == ' ')
 			i++;
+		// If we find a non-space character, increment the column count
 		if (line[i] && line[i] != ' ')
 		{
 			count++;
+			//Move to the next space
 			while (line[i] && line[i] != ' ')
 				i++;
 		}
@@ -43,64 +47,33 @@ int count_columns(char *line)
 }
 
 /**
- * @brief Parses a single line from the .fdf file into an array of t_point,
- *        and updates min_z and max_z values inside the fdf struct.
+ * @brief Parses a line of the .fdf file into an array of t_point.
  *
- * @param fdf Pointer to the FDF context (used to update min_z / max_z).
- * @param line A single line from the .fdf map file (ex: "0 0 3 2").
- * @param y The current row index in the map.
+ * @param fdf Pointer to the FDF context.
+ * @param line A single line of text from the map file.
+ * @param y The current row index.
  * @param columns The expected number of columns.
- * @return t_point* An array of points for this row, or NULL on failure.
+ * @return t_point* A dynamically allocated array of t_point or NULL on error.
  */
-t_point *parse_line(t_fdf *fdf, char *line, int y, int columns)
+t_point	*parse_line(t_fdf *fdf, char *line, int y, int columns)
 {
-	t_point *points;
-	char **values;
-	int i;
-	int z;
+	t_point	*points;
+	char	**values;
 
-	// Allocate row of points
+	// Allocate memory for the t_points array (row)
 	points = malloc(sizeof(t_point) * columns);
 	if (!points)
 		return (NULL);
-
-	// Split the input line into strings
+	// Split the line into values
 	values = ft_split(line, ' ');
 	if (!values)
-	{
-		free(points);
-		return (NULL);
-	}
-
-	// Parse each value and update min/max z
-	i = 0;
-	while (i < columns && values[i])
-	{
-		points[i].x = i;
-		points[i].y = y;
-		points[i].z = ft_atoi(values[i]);
-		z = points[i].z;
-
-		if (y == 0 && i == 0)
-		{
-			fdf->min_z = z;
-			fdf->max_z = z;
-		}
-		else
-		{
-			if (z < fdf->min_z)
-				fdf->min_z = z;
-			if (z > fdf->max_z)
-				fdf->max_z = z;
-		}
-		free(values[i]);
-		i++;
-	}
-
-	// Free any remaining values past expected column count
-	while (values[i])
-		free(values[i++]);
-	free(values);
+		return (free(points), NULL);
+	// Fill the points array with parsed values
+	if (!fill_points_array(fdf, points, values, y, columns))
+	// If fill_points_array fails, free the points array
+		return (free(points), NULL);
+	// Free the split array of strings
+	free_split_array(values);
 	return (points);
 }
 
@@ -113,21 +86,30 @@ t_point *parse_line(t_fdf *fdf, char *line, int y, int columns)
  * @param columns Pointer to write the column count into.
  * @return int Number of rows in the map, or -1 on error.
  */
-static int get_rows_and_columns(char *filename, int *columns)
+static int	get_rows_and_columns(char *filename, int *columns)
 {
-	int fd;
-	char *line;
-	int rows;
+	int		fd;
+	char	*line;
+	int		rows;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (-1);
 	rows = 0;
-	while ((line = get_next_line(fd)))
+	// Loop until EOF (breaks when get_next_line returns NULL)
+	while (1)
 	{
+		// Read a line from the file
+		line = get_next_line(fd);
+		// If the line is NULL, we reached EOF or an error occurred
+		if (!line)
+			break ;
+		// If it's the first line, count the columns
 		if (rows == 0)
 			*columns = count_columns(line);
+		// Free the line after processing
 		free(line);
+		// Increment the row count
 		rows++;
 	}
 	close(fd);
@@ -145,22 +127,42 @@ static int get_rows_and_columns(char *filename, int *columns)
  * @param columns Total number of columns.
  * @return t_point** 2D array of points, or NULL on error.
  */
-static t_point **read_map_file(int fd, t_fdf *fdf, int rows, int columns)
+static t_point	**read_map_file(int fd, t_fdf *fdf, int rows, int columns)
 {
-	t_point **map;
-	char *line;
-	int i;
+	/** t_point = {
+	*		x: 0,
+	*		y: 0,
+	*		z: 0
+	*	};
+	*	t_point * = array of t_point (a row)
+	*	t_point ** = pointer to an aray of t_point
+	*/
+	t_point	**map;
+	char	*line;
+	int		i;
 
+	// Allocate memory for the map array
 	map = malloc(sizeof(t_point *) * rows);
 	if (!map)
 		return (NULL);
 	i = 0;
-	while ((line = get_next_line(fd)))
+	// Loop through each line of the file
+	while (i < rows)
 	{
+		// Read a line from the file
+		line = get_next_line(fd);
+		if (!line)
+			break ;
+		// Parse the line into a t_point array. map[i] is a row of points
 		map[i] = parse_line(fdf, line, i, columns);
+		// Free the allocated memory in ft_split 
 		free(line);
+		// If parsing fails, free the map previously allocated rows
 		if (!map[i])
+		{
+			free_map_rows(map, i);
 			return (NULL);
+		}
 		i++;
 	}
 	return (map);
@@ -175,18 +177,23 @@ static t_point **read_map_file(int fd, t_fdf *fdf, int rows, int columns)
  * @param fdf Pointer to the FDF structure.
  * @return t_point** The 2D array of points for the map.
  */
-t_point **parse_map(char *filename, t_fdf *fdf)
+t_point	**parse_map(char *filename, t_fdf *fdf)
 {
-	t_point **map;
-	int fd;
+	t_point	**map;
+	int		fd;
 
+	// Return the row count directly in fdf->rows, and set fdf->columns by reference
 	fdf->rows = get_rows_and_columns(filename, &fdf->columns);
+	// If rows are less than or equal to 0, return NULL
 	if (fdf->rows <= 0)
 		return (NULL);
+	// Open the file for reading
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (NULL);
+	// Read the map file and fill the 2D array of points
 	map = read_map_file(fd, fdf, fdf->rows, fdf->columns);
+	// Close the file descriptor
 	close(fd);
 	return (map);
 }

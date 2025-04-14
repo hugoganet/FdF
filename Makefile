@@ -3,81 +3,81 @@ NAME = fdf
 
 # Path to the libft directory
 LIBFT_DIR = libft
-# Name of the libft static library
 LIBFT = $(LIBFT_DIR)/libft.a
+
+# MLX
 MLX_DIR = minilibx-linux
 
-# Directory containing Fdf source files
+# Source structure
 SRC_DIR = src
-# Source files for Fdf
-SRC_FILES = draw.c \
-			parse_map.c \
-			event.c \
-			color.c \
-			main.c
-# Full path to the source files
-SRCS := $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
-# Directory where the object files will be stored
+SRC_SUBDIRS = \
+	$(SRC_DIR)/drawing \
+	$(SRC_DIR)/parsing \
+	$(SRC_DIR)/UX
+
+SRC_FILES = \
+	main.c \
+	free_and_exit.c \
+	events.c \
+	color.c \
+	draw.c \
+	draw_utils.c \
+	image.c \
+	line.c \
+	transform.c \
+	parse_map.c \
+	parse_utils.c
+
+# Prefixed source paths
+SRCS = $(foreach dir, $(SRC_SUBDIRS), $(wildcard $(dir)/*.c))
+SRCS += src/main.c
+
+# Object directory and paths
 OBJ_DIR = obj
-# Full path to object files, replacing .c with .o
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Include directory for header files
-# - -I flag tells the compiler where to look for header files
-# - `includes` contains Fdf headers
-# - `$(LIBFT_DIR)` is for libft headers
-INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -Iminilibx-linux
+# Include directories
+INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -I$(MLX_DIR)
 
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-# Linker flags
 LDFLAGS = -L$(MLX_DIR) -lmlx -lXext -lX11 -lm -lbsd
 
-# Default rule: Build the executable
+# Default rule
 all: $(NAME)
 
-# Rule to build the libft library by invoking its Makefile
-# -C flag tells make to change to the directory containing the Makefile before building
-# This is necessary because the libft Makefile uses relative paths
+# Compile libft
 $(LIBFT):
 	@echo "Building libft..."
-	$(MAKE) -C $(LIBFT_DIR)
+	@$(MAKE) -C $(LIBFT_DIR)
 
-# Rule to compile source files into object files
-# -c flag tells the compiler to compile the source file without linking
-# - $< is the first dependency (the source file)
-# - $@ is the target (object file)
-# - @mkdir -p $(OBJ_DIR)  (Ensure the object directory exists)
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(LIBFT)
-	@mkdir -p $(OBJ_DIR)
+# Compile rule for .o files in mirrored structure under obj/
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Rule to link the object files into the final executable
-# -L flag tells the linker where to look for the libft library
-# -lft flag tells the linker to link against the libft library
+# Linking rule
 $(NAME): $(OBJS) $(LIBFT)
 	$(CC) $(OBJS) $(LDFLAGS) -L$(LIBFT_DIR) -lft -o $(NAME)
 
-# Rule to clean object files
+# Clean object files
 clean:
 	@echo "Cleaning object files..."
-	$(MAKE) -C $(LIBFT_DIR) clean
-	rm -rf $(OBJ_DIR)
+	@$(MAKE) -C $(LIBFT_DIR) clean
+	@rm -rf $(OBJ_DIR)
 
-# Rule to clean the executable and object files
+# Clean everything
 fclean: clean
 	@echo "Cleaning $(NAME)..."
-	$(MAKE) -C $(LIBFT_DIR) fclean
-	rm -f $(NAME)
+	@$(MAKE) -C $(LIBFT_DIR) fclean
+	@rm -f $(NAME)
 
-# Rule to recompile everything
+# Rebuild everything
 re: fclean all
 
-# Rule for bonus part (placeholder)
 bonus:
 	@echo "Bonus part here"
 
-# Phony targets to avoid conflicts with files of the same name
 .PHONY: all clean fclean re bonus

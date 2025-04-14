@@ -1,0 +1,55 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free_and_exit.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/14 12:49:58 by hganet            #+#    #+#             */
+/*   Updated: 2025/04/14 12:51:32 by hganet           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "fdf.h"
+
+/**
+ * @brief Frees the map rows up to a specified index.
+ * @param map The 2D array of points.
+ * @param up_to The number of rows to free.
+ */
+void free_map_rows(t_point **map, int up_to)
+{
+	int i;
+
+	i = 0;
+	while (i < up_to)
+	{
+		free(map[i]);
+		i++;
+	}
+	free(map);
+}
+
+/**
+ * @brief Cleans up the FDF context and exits the program.
+ * @param fdf The FDF context.
+ * @param exit_code The exit code to return.
+ */
+void cleanup_and_exit(t_fdf *fdf, int exit_code)
+{
+	if (fdf->map)
+		free_map_rows(fdf->map, fdf->rows);
+	exit(exit_code);
+}
+
+/**
+ * @brief Frees a NULL-terminated array of strings.
+ */
+void free_split_array(char **array)
+{
+	int i = 0;
+
+	while (array[i])
+		free(array[i++]);
+	free(array);
+}
