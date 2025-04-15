@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:53:01 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:29:09 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 17:35:48 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ t_point	**parse_map(char *filename, t_fdf *fdf);
 void	free_map_rows(t_point **map, int up_to);
 void	free_split_array(char **array);
 void	update_minmax_z(t_fdf *fdf, int z);
+int		check_args(int ac, char **av);
 
 // ───────────────────────────────────────────────
 // DRAWING & RENDERING FUNCTIONS

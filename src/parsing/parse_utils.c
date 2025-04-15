@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 16:33:49 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:35:20 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 17:35:00 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,16 @@ int	fill_points_array(t_point_input input)
 		else
 			update_minmax_z(input.fdf, z);
 		i++;
+	}
+	return (1);
+}
+
+int	check_args(int ac, char **av)
+{
+	if (ac != 2 || !ft_strnstr(av[1], ".fdf", ft_strlen(av[1])))
+	{
+		ft_printf("Usage: %s <map.fdf>\n", av[0]);
+		return (0);
 	}
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 18:54:27 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 14:34:07 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 17:35:27 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,8 @@ int	main(int ac, char **av)
 {
 	t_fdf	fdf;
 
-	if (ac != 2)
-	{
-		ft_printf("Usage: %s <map.fdf>\n", av[0]);
+	if (!check_args(ac, av))
 		return (1);
-	}
 	fdf.map = parse_map(av[1], &fdf);
 	if (!fdf.map)
 	{
