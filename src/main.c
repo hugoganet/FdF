@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 18:54:27 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 11:30:34 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 14:34:07 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,5 @@ int	main(int ac, char **av)
 	mlx_key_hook(fdf.win_ptr, handle_key, &fdf);
 	mlx_hook(fdf.win_ptr, 17, 0, handle_close, &fdf);
 	mlx_loop(fdf.mlx_ptr);
-	cleanup_and_exit(&fdf, 0);
 	return (0);
 }

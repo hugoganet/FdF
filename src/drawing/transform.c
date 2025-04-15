@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 14:10:12 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:45:02 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 14:33:39 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
  */
 t_point	project_point(t_point p, t_fdf *fdf)
 {
-	t_point	result;
+	t_point	screen_coordinates;
 	float	x;
 	float	y;
 	float	z;
@@ -35,11 +35,11 @@ t_point	project_point(t_point p, t_fdf *fdf)
 	x = (p.x - fdf->columns / 2.0f) * fdf->scale;
 	y = (p.y - fdf->rows / 2.0f) * fdf->scale;
 	z = p.z * fdf->scale * fdf->z_scale;
-	result.x = (x - y) * cos(0.523599);
-	result.y = (x + y) * sin(0.523599) - z;
-	result.x += fdf->x_offset;
-	result.y += fdf->y_offset;
-	return (result);
+	screen_coordinates.x = (x - y) * cos(0.523599);
+	screen_coordinates.y = (x + y) * sin(0.523599) - z;
+	screen_coordinates.x += fdf->x_offset;
+	screen_coordinates.y += fdf->y_offset;
+	return (screen_coordinates);
 }
 
 /**
