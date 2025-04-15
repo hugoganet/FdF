@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 12:49:58 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:47:38 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:37:41 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	free_map_rows(t_point **map, int up_to)
  * @param fdf The FDF context.
  * @param exit_code The exit code to return.
  */
-void	cleanup_and_exit(t_fdf *fdf, int exit_code)
+void	cleanup_and_exit(t_fdf *fdf, int exit_code, const char *msg)
 {
 	if (fdf->map)
 		free_map_rows(fdf->map, fdf->rows);
@@ -45,6 +45,7 @@ void	cleanup_and_exit(t_fdf *fdf, int exit_code)
 		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
 	if (fdf->mlx_ptr)
 		free(fdf->mlx_ptr);
+	ft_printf("%s\n", msg);
 	exit(exit_code);
 }
 

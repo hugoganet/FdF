@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:53:01 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 17:35:48 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:37:49 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void	update_window(t_fdf *fdf);
 // ───────────────────────────────────────────────
 // EVENT & UX HANDLING FUNCTIONS
 
-void	cleanup_and_exit(t_fdf *fdf, int exit_code);
+void	cleanup_and_exit(t_fdf *fdf, int exit_code, const char *msg);
 int		handle_close(void *param);
 int		handle_key(int keycode, void *param);
 

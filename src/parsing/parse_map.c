@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 11:33:40 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:33:46 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,28 +83,33 @@ t_point	*parse_line(t_fdf *fdf, char *line, int y, int columns)
  * @param columns Pointer to write the column count into.
  * @return int Number of rows in the map, or -1 on error.
  */
-static int	get_rows_and_columns(char *filename, int *columns)
+static void get_rows_and_columns(char *filename, int *columns, int *rows, t_fdf *fdf)
 {
-	int		fd;
-	char	*line;
-	int		rows;
+	int fd;
+	char *line;
+	int current_columns;
 
+	*rows = 0;
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
-		return (-1);
-	rows = 0;
-	while (1)
+		cleanup_and_exit(fdf, 1, "Error opening file");	
+	line = get_next_line(fd);
+	while (line)
 	{
-		line = get_next_line(fd);
-		if (!line)
-			break ;
-		if (rows == 0)
-			*columns = count_columns(line);
+		current_columns = count_columns(line);
+		if (*rows == 0)
+			*columns = current_columns;
+		else if (current_columns != *columns)
+		{
+			free(line);
+			close(fd);
+			cleanup_and_exit(fdf, 1, "Error: inconsistent column count");
+		}
 		free(line);
-		rows++;
+		(*rows)++;
+		line = get_next_line(fd);
 	}
 	close(fd);
-	return (rows);
 }
 
 /**
@@ -159,7 +164,7 @@ t_point	**parse_map(char *filename, t_fdf *fdf)
 	t_point	**map;
 	int		fd;
 
-	fdf->rows = get_rows_and_columns(filename, &fdf->columns);
+	get_rows_and_columns(filename, &fdf->columns, &fdf->rows, fdf);
 	if (fdf->rows <= 0)
 		return (NULL);
 	fd = open(filename, O_RDONLY);
