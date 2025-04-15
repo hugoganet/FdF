@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/14 12:02:26 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 11:33:40 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,13 @@ int	count_columns(char *line)
 
 	count = 0;
 	i = 0;
-	// Loop through the line until we reach the end
 	while (line[i])
 	{
-		// Skip spaces
 		while (line[i] == ' ')
 			i++;
-		// If we find a non-space character, increment the column count
 		if (line[i] && line[i] != ' ')
 		{
 			count++;
-			//Move to the next space
 			while (line[i] && line[i] != ' ')
 				i++;
 		}
@@ -57,22 +53,23 @@ int	count_columns(char *line)
  */
 t_point	*parse_line(t_fdf *fdf, char *line, int y, int columns)
 {
-	t_point	*points;
-	char	**values;
+	t_point			*points;
+	t_point_input	input;
+	char			**values;
 
-	// Allocate memory for the t_points array (row)
 	points = malloc(sizeof(t_point) * columns);
 	if (!points)
 		return (NULL);
-	// Split the line into values
 	values = ft_split(line, ' ');
 	if (!values)
 		return (free(points), NULL);
-	// Fill the points array with parsed values
-	if (!fill_points_array(fdf, points, values, y, columns))
-	// If fill_points_array fails, free the points array
+	input.fdf = fdf;
+	input.points = points;
+	input.values = values;
+	input.y = y;
+	input.columns = columns;
+	if (!fill_points_array(input))
 		return (free(points), NULL);
-	// Free the split array of strings
 	free_split_array(values);
 	return (points);
 }
@@ -96,20 +93,14 @@ static int	get_rows_and_columns(char *filename, int *columns)
 	if (fd < 0)
 		return (-1);
 	rows = 0;
-	// Loop until EOF (breaks when get_next_line returns NULL)
 	while (1)
 	{
-		// Read a line from the file
 		line = get_next_line(fd);
-		// If the line is NULL, we reached EOF or an error occurred
 		if (!line)
 			break ;
-		// If it's the first line, count the columns
 		if (rows == 0)
 			*columns = count_columns(line);
-		// Free the line after processing
 		free(line);
-		// Increment the row count
 		rows++;
 	}
 	close(fd);
@@ -129,35 +120,21 @@ static int	get_rows_and_columns(char *filename, int *columns)
  */
 static t_point	**read_map_file(int fd, t_fdf *fdf, int rows, int columns)
 {
-	/** t_point = {
-	*		x: 0,
-	*		y: 0,
-	*		z: 0
-	*	};
-	*	t_point * = array of t_point (a row)
-	*	t_point ** = pointer to an aray of t_point
-	*/
 	t_point	**map;
 	char	*line;
 	int		i;
 
-	// Allocate memory for the map array
 	map = malloc(sizeof(t_point *) * rows);
 	if (!map)
 		return (NULL);
 	i = 0;
-	// Loop through each line of the file
 	while (i < rows)
 	{
-		// Read a line from the file
 		line = get_next_line(fd);
 		if (!line)
 			break ;
-		// Parse the line into a t_point array. map[i] is a row of points
 		map[i] = parse_line(fdf, line, i, columns);
-		// Free the allocated memory in ft_split 
 		free(line);
-		// If parsing fails, free the map previously allocated rows
 		if (!map[i])
 		{
 			free_map_rows(map, i);
@@ -182,18 +159,13 @@ t_point	**parse_map(char *filename, t_fdf *fdf)
 	t_point	**map;
 	int		fd;
 
-	// Return the row count directly in fdf->rows, and set fdf->columns by reference
 	fdf->rows = get_rows_and_columns(filename, &fdf->columns);
-	// If rows are less than or equal to 0, return NULL
 	if (fdf->rows <= 0)
 		return (NULL);
-	// Open the file for reading
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return (NULL);
-	// Read the map file and fill the 2D array of points
 	map = read_map_file(fd, fdf, fdf->rows, fdf->columns);
-	// Close the file descriptor
 	close(fd);
 	return (map);
 }

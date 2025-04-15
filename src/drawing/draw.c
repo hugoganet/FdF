@@ -6,12 +6,11 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 19:11:55 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/14 16:08:13 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 11:36:37 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
-
 
 /**
  * @brief Draws the entire wireframe by connecting neighboring points.
@@ -27,16 +26,12 @@ void	draw_map(t_fdf *fdf)
 	int	y;
 
 	y = 0;
-	// Iterate through each row of the map
 	while (y < fdf->rows)
 	{
 		x = 0;
-		// Iterate through each column of the current row
 		while (x < fdf->columns)
 		{
-			// Draw a line to the right if not at the last column
 			draw_horizontal_line(fdf, x, y);
-			// Draw a line downwards if not at the last row
 			draw_vertical_line(fdf, x, y);
 			x++;
 		}
@@ -51,15 +46,15 @@ void	draw_map(t_fdf *fdf)
  *
  * @param fdf Pointer to the FDF structure.
  */
-void render_image(t_fdf *fdf)
+void	render_image(t_fdf *fdf)
 {
 	mlx_clear_window(fdf->mlx_ptr, fdf->win_ptr);
 	mlx_put_image_to_window(
-							fdf->mlx_ptr,
-							fdf->win_ptr,
-							fdf->img.img_ptr,
-							0,
-							0);
+		fdf->mlx_ptr,
+		fdf->win_ptr,
+		fdf->img.img_ptr,
+		0,
+		0);
 }
 
 /**
@@ -69,7 +64,7 @@ void render_image(t_fdf *fdf)
  *
  * @param fdf Pointer to the FDF structure.
  */
-void update_window(t_fdf *fdf)
+void	update_window(t_fdf *fdf)
 {
 	draw_map(fdf);
 	render_image(fdf);

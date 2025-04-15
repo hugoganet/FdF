@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:42:16 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/14 16:14:56 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 11:46:43 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@
  * @param param Pointer to the FDF structure (passed as void*).
  * @return Always returns 0 (MiniLibX requires it).
  */
-int handle_key(int keycode, void *param)
+int	handle_key(int keycode, void *param)
 {
-	t_fdf *fdf;
+	t_fdf	*fdf;
 
 	fdf = (t_fdf *)param;
 	if (keycode == 65307)
@@ -43,9 +43,9 @@ int handle_key(int keycode, void *param)
  * @param param Pointer to the FDF structure (passed as void*).
  * @return Always returns 0.
  */
-int handle_close(void *param)
+int	handle_close(void *param)
 {
-	t_fdf *fdf;
+	t_fdf	*fdf;
 
 	fdf = (t_fdf *)param;
 	mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);

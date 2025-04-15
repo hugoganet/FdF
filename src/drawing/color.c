@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 14:47:40 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/14 13:47:20 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 11:38:19 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@ int	interpolate_color(int start, int end, float percent)
 	int	g;
 	int	b;
 
-	r = ((int)((1 - percent) * ((start >> 16) & 0xFF) + percent * ((end >> 16) & 0xFF))) << 16;
-	g = ((int)((1 - percent) * ((start >> 8) & 0xFF) + percent * ((end >> 8) & 0xFF))) << 8;
+	r = ((int)((1 - percent) * ((start >> 16) & 0xFF)
+				+ percent * ((end >> 16) & 0xFF))) << 16;
+	g = ((int)((1 - percent) * ((start >> 8) & 0xFF)
+				+ percent * ((end >> 8) & 0xFF))) << 8;
 	b = (int)((1 - percent) * (start & 0xFF) + percent * (end & 0xFF));
 	return (r | g | b);
 }
@@ -45,7 +47,7 @@ int	get_color(int z, int min_z, int max_z)
 	float	percent;
 
 	if (max_z == min_z)
-		return (0xFFFFFF); // Flat map
+		return (0xFFFFFF);
 	percent = (float)(z - min_z) / (max_z - min_z);
-	return (interpolate_color(0x0000FF, 0xFF0000, percent)); // Blue → Red
+	return (interpolate_color(0x0000FF, 0xFF0000, percent));
 }

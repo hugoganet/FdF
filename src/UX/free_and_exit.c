@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 12:49:58 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/14 12:51:32 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 11:47:38 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
  * @param map The 2D array of points.
  * @param up_to The number of rows to free.
  */
-void free_map_rows(t_point **map, int up_to)
+void	free_map_rows(t_point **map, int up_to)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < up_to)
@@ -35,20 +35,27 @@ void free_map_rows(t_point **map, int up_to)
  * @param fdf The FDF context.
  * @param exit_code The exit code to return.
  */
-void cleanup_and_exit(t_fdf *fdf, int exit_code)
+void	cleanup_and_exit(t_fdf *fdf, int exit_code)
 {
 	if (fdf->map)
 		free_map_rows(fdf->map, fdf->rows);
+	if (fdf->img.img_ptr)
+		mlx_destroy_image(fdf->mlx_ptr, fdf->img.img_ptr);
+	if (fdf->win_ptr)
+		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
+	if (fdf->mlx_ptr)
+		free(fdf->mlx_ptr);
 	exit(exit_code);
 }
 
 /**
  * @brief Frees a NULL-terminated array of strings.
  */
-void free_split_array(char **array)
+void	free_split_array(char **array)
 {
-	int i = 0;
+	int	i;
 
+	i = 0;
 	while (array[i])
 		free(array[i++]);
 	free(array);
