@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 14:04:56 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:39:53 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 19:26:22 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,10 @@ void	draw_horizontal_line(t_fdf *fdf, int x, int y)
 	{
 		p1 = fdf->map[y][x];
 		p2 = fdf->map[y][x + 1];
-		color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
+		if (p1.color != -1 && p2.color != -1)
+			color = interpolate_color(p1.color, p2.color, 0.5f);
+		else
+			color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
 		draw_line(fdf, project_point(p1, fdf), project_point(p2, fdf), color);
 	}
 }
@@ -77,7 +80,10 @@ void	draw_vertical_line(t_fdf *fdf, int x, int y)
 	{
 		p1 = fdf->map[y][x];
 		p2 = fdf->map[y + 1][x];
-		color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
+		if (p1.color != -1 && p2.color != -1)
+			color = interpolate_color(p1.color, p2.color, 0.5f);
+		else
+			color = get_color((p1.z + p2.z) / 2, fdf->min_z, fdf->max_z);
 		draw_line(fdf, project_point(p1, fdf), project_point(p2, fdf), color);
 	}
 }

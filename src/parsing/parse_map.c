@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 18:33:46 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:41:20 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,16 +83,17 @@ t_point	*parse_line(t_fdf *fdf, char *line, int y, int columns)
  * @param columns Pointer to write the column count into.
  * @return int Number of rows in the map, or -1 on error.
  */
-static void get_rows_and_columns(char *filename, int *columns, int *rows, t_fdf *fdf)
+static void	get_rows_and_columns(
+	char *filename, int *columns, int *rows, t_fdf *fdf)
 {
-	int fd;
-	char *line;
-	int current_columns;
+	int		fd;
+	char	*line;
+	int		current_columns;
 
 	*rows = 0;
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
-		cleanup_and_exit(fdf, 1, "Error opening file");	
+		cleanup_and_exit(fdf, 1, "Error opening file");
 	line = get_next_line(fd);
 	while (line)
 	{

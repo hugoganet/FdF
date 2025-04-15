@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 18:54:27 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 17:35:27 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:42:55 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	if (!init_window(&fdf))
-		cleanup_and_exit(&fdf, 1);
+		cleanup_and_exit(&fdf, 1, "Error initializing window");
 	init_image(&fdf);
 	init_transform(&fdf);
 	update_window(&fdf);

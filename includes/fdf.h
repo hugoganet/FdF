@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:53:01 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 18:37:49 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:53:08 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_point
 	int	x;
 	int	y;
 	int	z;
+	int	color;
 }		t_point;
 
 /**
@@ -117,6 +118,7 @@ void	draw_horizontal_line(t_fdf *fdf, int x, int y);
 void	draw_line(t_fdf *fdf, t_point p1, t_point p2, int color);
 void	draw_map(t_fdf *fdf);
 int		get_color(int z, int min_z, int max_z);
+int		interpolate_color(int start, int end, float percent);
 void	init_image(t_fdf *fdf);
 void	init_transform(t_fdf *fdf);
 void	put_pixel_to_image(t_img *img, int x, int y, int color);

@@ -30,6 +30,7 @@ SRC = ft_isalpha.c \
 			ft_split.c \
 			ft_itoa.c \
 			ft_atoi.c \
+			ft_atoi_base.c \
 			ft_strmapi.c \
 			ft_striteri.c \
 			ft_check_base.c \

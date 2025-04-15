@@ -6,11 +6,24 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 16:33:49 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 17:35:00 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/15 19:26:02 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+/**
+ * * @brief Checks the command line arguments for validity.
+ */
+int	check_args(int ac, char **av)
+{
+	if (ac != 2 || !ft_strnstr(av[1], ".fdf", ft_strlen(av[1])))
+	{
+		ft_printf("Usage: %s <map.fdf>\n", av[0]);
+		return (0);
+	}
+	return (1);
+}
 
 /**
  * @brief Initializes the window for the FDF application.
@@ -38,42 +51,50 @@ void	update_minmax_z(t_fdf *fdf, int z)
 }
 
 /**
- * @brief Fills an array of t_point from the split values and updates min/max z.
+ * @brief Fills a single t_point from a split value like "42,0xFF0000".
  * 
- * @param input The input structure containing the :
- * 			  	fdf, points, values, y, and columns.
+ * This function extracts the x, y, z, and color values from the input string
+ * and assigns them to the corresponding fields in the t_point structure.
+ * @param in Pointer to the t_point_input structure containing the input data.
+ * @param i Index of the current point in the input array.
+ */
+static void	fill_point(t_point_input *in, int i)
+{
+	char	**parts;
+	int		z;
+
+	parts = ft_split(in->values[i], ',');
+	in->points[i].x = i;
+	in->points[i].y = in->y;
+	in->points[i].z = ft_atoi(parts[0]);
+	in->points[i].color = -1;
+	if (parts[1])
+		in->points[i].color = ft_atoi_base(parts[1], 16);
+	free_split_array(parts);
+	z = in->points[i].z;
+	if (in->y == 0 && i == 0)
+	{
+		in->fdf->min_z = z;
+		in->fdf->max_z = z;
+	}
+	else
+		update_minmax_z(in->fdf, z);
+}
+
+/**
+ * @brief Fills the points array with t_point structures.
+ * @param input The t_point_input structure containing the input data.
  * @return 1 on success, 0 on failure.
  */
 int	fill_points_array(t_point_input input)
 {
 	int	i;
-	int	z;
 
 	i = 0;
 	while (i < input.columns && input.values[i])
 	{
-		input.points[i].x = i;
-		input.points[i].y = input.y;
-		input.points[i].z = ft_atoi(input.values[i]);
-		z = input.points[i].z;
-		if (input.y == 0 && i == 0)
-		{
-			input.fdf->min_z = z;
-			input.fdf->max_z = z;
-		}
-		else
-			update_minmax_z(input.fdf, z);
+		fill_point(&input, i);
 		i++;
-	}
-	return (1);
-}
-
-int	check_args(int ac, char **av)
-{
-	if (ac != 2 || !ft_strnstr(av[1], ".fdf", ft_strlen(av[1])))
-	{
-		ft_printf("Usage: %s <map.fdf>\n", av[0]);
-		return (0);
 	}
 	return (1);
 }
