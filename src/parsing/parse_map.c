@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/28 18:56:21 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/15 18:41:20 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/16 12:20:26 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,11 @@ t_point	*parse_line(t_fdf *fdf, char *line, int y, int columns)
 	input.y = y;
 	input.columns = columns;
 	if (!fill_points_array(input))
-		return (free(points), NULL);
+	{
+		free_split_array(values);
+		free(points);
+		return (NULL);
+	}
 	free_split_array(values);
 	return (points);
 }
