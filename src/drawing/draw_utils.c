@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   draw_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hugoganet <hugoganet@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 14:04:56 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 19:26:22 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/16 09:38:21 by hugoganet        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	put_pixel_to_image(t_img *img, int x, int y, int color)
 		return ;
 	if (x < 0 || x >= img->width || y < 0 || y >= img->height)
 		return ;
-	dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+	dst = img->addr + ((y * img->line_length )+ x * (img->bits_per_pixel / 8));
 	*(unsigned int *)dst = color;
 }
 
