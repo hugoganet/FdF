@@ -7,6 +7,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 
 # MLX
 MLX_DIR = minilibx-linux
+MLX_LIB = $(MLX_DIR)/libmlx_Linux.a
 
 # Source structure
 SRC_DIR = src
@@ -53,19 +54,25 @@ $(LIBFT):
 	@echo "Building libft..."
 	@$(MAKE) -C $(LIBFT_DIR)
 
+# Compile MiniLibX
+$(MLX_LIB):
+	@echo "Building MiniLibX..."
+	@$(MAKE) -C $(MLX_DIR)
+
 # Compile rule for .o files in mirrored structure under obj/
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Linking rule
-$(NAME): $(OBJS) $(LIBFT)
+$(NAME): $(OBJS) $(LIBFT) $(MLX_LIB)
 	$(CC) $(OBJS) $(LDFLAGS) -L$(LIBFT_DIR) -lft -o $(NAME)
 
 # Clean object files
 clean:
 	@echo "Cleaning object files..."
 	@$(MAKE) -C $(LIBFT_DIR) clean
+	@$(MAKE) -C $(MLX_DIR) clean
 	@rm -rf $(OBJ_DIR)
 
 # Clean everything
