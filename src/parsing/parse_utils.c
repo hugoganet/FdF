@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 16:33:49 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 19:26:02 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/18 17:52:06 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,24 @@
  */
 int	check_args(int ac, char **av)
 {
-	if (ac != 2 || !ft_strnstr(av[1], ".fdf", ft_strlen(av[1])))
+	int		len;
+	char	*ext;
+
+	if (ac != 2)
 	{
 		ft_printf("Usage: %s <map.fdf>\n", av[0]);
+		return (0);
+	}
+	len = ft_strlen(av[1]);
+	if (len < 5)
+	{
+		ft_printf("Error: Filename too short or missing .fdf extension.\n");
+		return (0);
+	}
+	ext = av[1] + len - 4;
+	if (ft_strncmp(ext, ".fdf", 4) != 0)
+	{
+		ft_printf("Error: File must end with .fdf extension.\n");
 		return (0);
 	}
 	return (1);
