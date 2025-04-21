@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:42:16 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/18 17:51:10 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/18 19:27:34 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,7 @@ int	handle_key(int keycode, void *param)
 
 	fdf = (t_fdf *)param;
 	if (keycode == 65307)
-	{
-		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
-		printf("wesh");
 		cleanup_and_exit(fdf, 0, "Program closed with ESC.");
-	}
 	return (0);
 }
 
@@ -49,7 +45,6 @@ int	handle_close(void *param)
 	t_fdf	*fdf;
 
 	fdf = (t_fdf *)param;
-	mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
 	cleanup_and_exit(fdf, 0, "Program closed with window cross.");
 	return (0);
 }
