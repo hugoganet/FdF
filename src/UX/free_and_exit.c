@@ -6,11 +6,12 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 12:49:58 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 18:37:41 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/21 14:44:34 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+#include "get_next_line.h"
 
 /**
  * @brief Frees the map rows up to a specified index.
@@ -45,6 +46,7 @@ void	cleanup_and_exit(t_fdf *fdf, int exit_code, const char *msg)
 		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
 	if (fdf->mlx_ptr)
 		free(fdf->mlx_ptr);
+	flush_gnl();
 	ft_printf("%s\n", msg);
 	exit(exit_code);
 }
