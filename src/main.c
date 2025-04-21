@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 18:54:27 by hugoganet         #+#    #+#             */
-/*   Updated: 2025/04/21 14:40:32 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/21 15:10:29 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ int	main(int ac, char **av)
 {
 	t_fdf	fdf;
 
+	ft_bzero(&fdf, sizeof(t_fdf));
 	if (!check_args(ac, av))
 		return (1);
 	fdf.map = parse_map(av[1], &fdf);
