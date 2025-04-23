@@ -6,8 +6,8 @@ LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 # MLX
-MLX_DIR = minilibx-linux
-MLX_LIB = $(MLX_DIR)/libmlx_Linux.a
+MLX_DIR = minilibx_macos
+MLX_LIB = $(MLX_DIR)/libmlx.a
 
 # Source structure
 SRC_DIR = src
@@ -44,7 +44,8 @@ INCLUDES = -Iincludes -I$(LIBFT_DIR)/includes -I$(MLX_DIR)
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS = -L$(MLX_DIR) -lmlx -lXext -lX11 -lm -lbsd
+LDFLAGS = -L$(MLX_DIR) -lmlx -framework OpenGL -framework AppKit
+
 
 # Default rule
 all: $(NAME)

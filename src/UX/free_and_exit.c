@@ -6,7 +6,7 @@
 /*   By: hugoganet <hugoganet@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 12:49:58 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/23 17:01:20 by hugoganet        ###   ########.fr       */
+/*   Updated: 2025/04/23 17:17:12 by hugoganet        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,7 @@ void	cleanup_and_exit(t_fdf *fdf, int exit_code, const char *msg)
 	if (fdf->win_ptr)
 		mlx_destroy_window(fdf->mlx_ptr, fdf->win_ptr);
 	if (fdf->mlx_ptr)
-	{
-		mlx_destroy_display(fdf->mlx_ptr);
 		free(fdf->mlx_ptr);
-	}
 	flush_gnl();
 	ft_printf("%s\n", msg);
 	exit(exit_code);

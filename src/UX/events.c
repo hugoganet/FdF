@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   events.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hugoganet <hugoganet@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:42:16 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/18 19:27:34 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/23 17:24:29 by hugoganet        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	handle_key(int keycode, void *param)
 	t_fdf	*fdf;
 
 	fdf = (t_fdf *)param;
-	if (keycode == 65307)
+	if (keycode == 53)
 		cleanup_and_exit(fdf, 0, "Program closed with ESC.");
 	return (0);
 }
