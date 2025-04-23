@@ -6,7 +6,7 @@
 /*   By: hganet <hganet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 14:11:22 by hganet            #+#    #+#             */
-/*   Updated: 2025/04/15 11:45:52 by hganet           ###   ########.fr       */
+/*   Updated: 2025/04/21 15:27:46 by hganet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,7 @@ void	init_image(t_fdf *fdf)
 {
 	fdf->img.img_ptr = mlx_new_image(fdf->mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
 	if (!fdf->img.img_ptr)
-	{
-		ft_printf("Error: Failed to create an image.\n");
-		exit(1);
-	}
+		cleanup_and_exit(fdf, 1, "Error: Failed to create an image.");
 	fdf->img.addr = mlx_get_data_addr(
 			fdf->img.img_ptr,
 			&fdf->img.bits_per_pixel,
